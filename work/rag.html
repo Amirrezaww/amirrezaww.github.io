@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Multi-strategy RAG pipeline, Amir Amini</title>
+<meta name="description" content="Amir Amini's MSc dissertation: four retrieval strategies over Weaviate, Llama 3.2 3B, Arize Phoenix tracing, and an LLM-as-judge evaluation. Retrieval lifted accuracy from 32.0% to 77.8%.">
+<meta name="site-root" content="../">
+<link rel="canonical" href="https://amirrezaww.github.io/work/rag.html">
+<meta property="og:title" content="Multi-strategy RAG pipeline">
+<meta property="og:description" content="Retrieval lifted answer accuracy from 32.0% to 77.8%, measured by an independent judge.">
+<meta property="og:image" content="https://amirrezaww.github.io/img/og.jpg">
+<link rel="icon" href="../img/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../fonts/instrument-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../css/site.css">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body class="case">
+<a class="skip" href="#main">Skip to content</a>
+<header class="rail is-light" data-rail>
+  <a class="wordmark" href="../index.html">Amir Amini, ML engineer</a>
+  <p class="rail-sentence">Case study: retrieval and evaluation.</p>
+  <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
+  <nav class="rail-nav" id="nav" aria-label="Main">
+    <a href="../index.html#work">Work</a>
+    <a href="../index.html#about">About</a>
+    <a href="../index.html#contact">Contact</a>
+    <a class="button" href="../cv/Amirreza_Amini_CV.pdf">CV <span class="sr-only">(PDF)</span></a>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="case-hero" aria-labelledby="title">
+    <div class="col">
+      <h1 id="title" data-reveal>Multi-strategy RAG pipeline</h1>
+      <p class="lead" data-reveal style="--i:1">My MSc dissertation: four ways to retrieve, one small model to answer, and an evaluation I can defend.</p>
+      <dl class="case-facts" data-reveal style="--i:2">
+        <div><dt>Role</dt><dd>Sole author</dd></div>
+        <div><dt>Recognition</dt><dd>Best Project, Middlesex</dd></div>
+        <div><dt>Code</dt><dd><a class="link" href="https://github.com/Amirrezaww/RAG_Project">GitHub</a></dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <figure class="case-figure" data-reveal>
+    <div class="wide">
+      <img src="../img/fig/rag-latency.webp" width="1989" height="1190" alt="Notebook figure: latency of each retrieval run, correlation between metrics, and the distribution of response lengths">
+      <figcaption>From the dissertation notebook: latency per run, how the metrics move together, and the spread of answer lengths.</figcaption>
+    </div>
+  </figure>
+
+  <div class="case-body">
+    <section class="col" aria-labelledby="q">
+      <h2 id="q" data-reveal>The question</h2>
+      <p data-reveal style="--i:1">A 3 billion parameter model answers from memory with full confidence, right or wrong. Retrieval should help, but by how much, at what cost in latency, and which retrieval? Dense vectors, keyword search, a fusion of the two, or a reranker on top?</p>
+      <p data-reveal style="--i:2">I wanted numbers I could stand behind, so the evaluation got as much design as the pipeline.</p>
+    </section>
+
+    <section class="col" aria-labelledby="built">
+      <h2 id="built" data-reveal>What I built</h2>
+      <ul class="plain">
+        <li data-reveal>Natural Questions and HotpotQA indexed in <b>Weaviate</b> with named vectors.</li>
+        <li data-reveal style="--i:1">Four strategies behind one interface: semantic search, <b>BM25</b>, hybrid with a tunable alpha, and semantic search reranked by <b>Cohere</b>.</li>
+        <li data-reveal style="--i:2"><b>Llama 3.2 3B</b> through OpenRouter as the generator, with a no-retrieval baseline using the same model.</li>
+        <li data-reveal style="--i:3">Every call traced with <b>OpenTelemetry</b> into <b>Arize Phoenix</b>, so latency and judgements can be inspected per span.</li>
+        <li data-reveal style="--i:4">An LLM judge scoring accuracy against the ground truth, plus relevance and faithfulness against the retrieved context.</li>
+      </ul>
+      <figure class="col-figure" data-reveal>
+        <img src="../img/photo/hendon-1200.webp" width="1200" height="900" alt="The Burroughs building of Middlesex University's Hendon campus" loading="lazy">
+        <figcaption>Middlesex University, Hendon, where the dissertation was written and awarded.</figcaption>
+      </figure>
+    </section>
+
+    <section aria-labelledby="nums">
+      <div class="col">
+        <h2 id="nums" data-reveal>What the numbers say</h2>
+        <p data-reveal style="--i:1">100 Natural Questions queries, graded by GPT-5-mini, a far stronger model than the one answering. Both arms share the generator, the judge and the questions, so the gap belongs to retrieval.</p>
+      </div>
+      <div class="wide">
+        <div class="numbers">
+          <div data-reveal><b>77.8%</b><span>accuracy with retrieval</span></div>
+          <div data-reveal style="--i:1"><b>32.0%</b><span>the same model without it</span></div>
+          <div data-reveal style="--i:2"><b>+2.1 s</b><span>average cost, 8.55 s against 6.47 s</span></div>
+        </div>
+        <figure class="col-figure" data-reveal>
+          <img src="../img/fig/rag-vs-norag.webp" width="2390" height="634" alt="Notebook figure: faithfulness, accuracy, average latency and latency distribution, with and without retrieval" loading="lazy">
+          <figcaption>The comparison as plotted in the notebook. The No RAG faithfulness is zero by construction: there is no context to be faithful to.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section aria-labelledby="trace">
+      <div class="col">
+        <h2 id="trace" data-reveal>Read a trace</h2>
+        <p data-reveal style="--i:1">Three real runs from the committed results file. Pick one to see where the time went, what came back from the index, and what the model said.</p>
+      </div>
+      <div class="wide panel" data-ui data-reveal data-traces>
+        <h3>Trace viewer</h3>
+        <div class="trace-tabs" role="tablist" aria-label="Queries"></div>
+        <div class="spans" aria-live="polite"></div>
+        <ol class="retrieved" aria-label="Retrieved items"></ol>
+        <div class="answer"></div>
+        <div class="verdicts"></div>
+        <noscript><p>The trace viewer needs JavaScript. The raw rows are in <a href="https://github.com/Amirrezaww/RAG_Project/blob/main/data/rag_evaluation_results.csv">rag_evaluation_results.csv</a>.</p></noscript>
+      </div>
+    </section>
+
+    <section class="col" aria-labelledby="wrong">
+      <h2 id="wrong" data-reveal>What went wrong, and what I did</h2>
+      <p data-reveal style="--i:1"><b>The model narrated its prompt.</b> Answers opened with &ldquo;Based on the additional information provided, I will update my knowledge&rdquo;, as in the traces above. The prompt framed the context as 2024 news to add to its knowledge, and a 3B model took that literally. I rewrote it to be directive and source neutral.</p>
+      <p data-reveal style="--i:2"><b>Faithfulness was the wrong question for this corpus.</b> The NQ index stores short answers like &ldquo;France&rdquo;, not passages, so there is nothing to ground against. Low faithfulness here measures the corpus, not hallucination.</p>
+      <p data-reveal style="--i:3"><b>One comparison graded itself.</b> The four-strategy benchmark used the 3B generator as its own judge, on 20 queries. Its ranking below is indicative only, and I say so in the repository.</p>
+    </section>
+
+    <section aria-labelledby="strat">
+      <div class="col"><h2 id="strat" data-reveal>Four strategies, with that caveat</h2></div>
+      <div class="wide" data-reveal>
+        <table class="table">
+          <caption class="sr-only">Average latency and relevance by retrieval strategy, 20 queries, self-judged</caption>
+          <thead><tr><th scope="col">Strategy</th><th scope="col" class="r">Latency</th><th scope="col" class="r">Relevance</th><th scope="col" class="r">Faithfulness</th></tr></thead>
+          <tbody>
+            <tr><td>BM25</td><td class="r">1.72 s</td><td class="r">0.40</td><td class="r">0.00</td></tr>
+            <tr><td>Semantic</td><td class="r">2.76 s</td><td class="r">0.35</td><td class="r">0.15</td></tr>
+            <tr><td>Hybrid</td><td class="r">2.16 s</td><td class="r">0.25</td><td class="r">0.00</td></tr>
+            <tr><td>Semantic with Cohere rerank</td><td class="r">2.01 s</td><td class="r">0.25</td><td class="r">0.00</td></tr>
+          </tbody>
+        </table>
+        <img style="margin-top:2rem" src="../img/fig/rag-strategies.webp" width="1389" height="490" alt="Notebook figure: bar charts of latency, relevance and faithfulness for the four strategies" loading="lazy">
+      </div>
+    </section>
+  </div>
+
+  <section class="case-next" aria-labelledby="next">
+    <div class="col">
+      <h2 id="next" data-reveal>What I would do next</h2>
+      <ul class="plain">
+        <li data-reveal>Re-run the four-strategy benchmark under the GPT-5-mini judge, on a larger sample. It is cheap and would confirm or overturn the ranking.</li>
+        <li data-reveal style="--i:1">Point faithfulness at HotpotQA&rsquo;s supporting sentences, which the ingestion code already extracts.</li>
+        <li data-reveal style="--i:2">Regenerate the committed results with the fixed prompt, to measure what the fix was worth.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<div class="closing">
+  <section class="contact" aria-labelledby="contact-title">
+    <p class="statement">Want the details behind a number? Ask me; I keep the traces.</p>
+    <div class="reach" style="grid-column: 7 / -1">
+      <h2 id="contact-title">Other case studies</h2>
+      <ul class="reach-links">
+        <li><a class="link" href="finsentinel.html">FinSentinel <span class="arrow" aria-hidden="true">&rarr;</span></a></li>
+        <li><a class="link" href="loan-default.html">Loan default risk <span class="arrow" aria-hidden="true">&rarr;</span></a></li>
+      </ul>
+      <p class="where"><a class="link" href="mailto:aamini8118@gmail.com">aamini8118@gmail.com</a></p>
+    </div>
+  </section>
+  <footer class="footer">
+    <span>Amir Amini, ML engineer</span>
+    <nav aria-label="Footer"><a href="../index.html">Home</a><a href="https://github.com/Amirrezaww">GitHub</a><a href="https://www.linkedin.com/in/amirreza-amini8118/">LinkedIn</a></nav>
+    <span class="end">2026 &middot; <a href="../credits.html">Image credits</a></span>
+  </footer>
+</div>
+<script type="module" src="../js/site.js"></script>
+<script type="module" src="../js/rag-demo.js"></script>
+</body>
+</html>

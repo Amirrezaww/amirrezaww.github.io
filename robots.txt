@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://amirrezaww.github.io/sitemap.xml

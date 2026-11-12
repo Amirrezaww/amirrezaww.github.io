@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loan default risk, Amir Amini</title>
+<meta name="description" content="An XGBoost credit model on 307,511 real loan applications, SMOTENC inside a leak-free pipeline, SHAP, and a threshold moved from 0.50 to 0.18. The tuned model runs live in the page.">
+<meta name="site-root" content="../">
+<link rel="canonical" href="https://amirrezaww.github.io/work/loan-default.html">
+<meta property="og:title" content="Loan default risk: moving the line">
+<meta property="og:description" content="Default recall from 4% to 40% by choosing the threshold on purpose. Run the 388-tree model in your browser.">
+<meta property="og:image" content="https://amirrezaww.github.io/img/og.jpg">
+<link rel="icon" href="../img/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../fonts/instrument-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../css/site.css">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body class="case">
+<a class="skip" href="#main">Skip to content</a>
+<header class="rail is-light" data-rail>
+  <a class="wordmark" href="../index.html">Amir Amini, ML engineer</a>
+  <p class="rail-sentence">Case study: credit risk and a threshold.</p>
+  <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
+  <nav class="rail-nav" id="nav" aria-label="Main">
+    <a href="../index.html#work">Work</a>
+    <a href="../index.html#about">About</a>
+    <a href="../index.html#contact">Contact</a>
+    <a class="button" href="../cv/Amirreza_Amini_CV.pdf">CV <span class="sr-only">(PDF)</span></a>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="case-hero" aria-labelledby="title">
+    <div class="col">
+      <h1 id="title" data-reveal>Loan default risk</h1>
+      <p class="lead" data-reveal style="--i:1">An XGBoost credit model on 307,511 applications, and the threshold that made it useful.</p>
+      <dl class="case-facts" data-reveal style="--i:2">
+        <div><dt>Data</dt><dd>Home Credit, 8.1% default</dd></div>
+        <div><dt>Deployed</dt><dd>FastAPI, Streamlit, HF Spaces</dd></div>
+        <div><dt>Links</dt><dd><a class="link" href="https://github.com/Amirrezaww/Loan_default_risk_predictor">GitHub</a>, <a class="link" href="https://huggingface.co/spaces/amirrezaww/loan-default-risk-predictor">live demo</a></dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="case-figure" aria-labelledby="run">
+    <div class="wide">
+      <h2 id="run" class="head" data-reveal style="margin-bottom:1.25rem">Run the model</h2>
+      <div class="panel" data-ui data-reveal>
+        <form class="scorer" data-scorer="full" data-state="loading" onsubmit="return false" style="padding:0">
+          <div class="grid" style="row-gap:1.25rem">
+            <div class="control" style="grid-column:span 6"><label for="f-ext2">External credit score A</label><output data-out="ext2">0.70</output><input id="f-ext2" type="range" min="0" max="1" step="0.01" value="0.7" data-field="ext2"></div>
+            <div class="control" style="grid-column:span 6"><label for="f-ext3">External credit score B</label><output data-out="ext3">0.60</output><input id="f-ext3" type="range" min="0" max="1" step="0.01" value="0.6" data-field="ext3"></div>
+            <div class="control" style="grid-column:span 6"><label for="f-age">Age</label><output data-out="age">35</output><input id="f-age" type="range" min="21" max="69" step="1" value="35" data-field="age"></div>
+            <div class="control" style="grid-column:span 6"><label for="f-emp">Years in current job</label><output data-out="emp">5</output><input id="f-emp" type="range" min="0" max="40" step="1" value="5" data-field="emp"></div>
+            <div class="control" style="grid-column:span 4"><label for="f-income">Annual income</label><output data-out="income">&pound;135,000</output><input id="f-income" type="range" min="25000" max="500000" step="5000" value="135000" data-field="income" data-format="money"></div>
+            <div class="control" style="grid-column:span 4"><label for="f-credit">Loan amount</label><output data-out="credit">&pound;500,000</output><input id="f-credit" type="range" min="50000" max="2000000" step="10000" value="500000" data-field="credit" data-format="money"></div>
+            <div class="control" style="grid-column:span 4"><label for="f-annuity">Annual repayment</label><output data-out="annuity">&pound;25,000</output><input id="f-annuity" type="range" min="5000" max="150000" step="1000" value="25000" data-field="annuity" data-format="money"></div>
+            <div class="control" style="grid-column:span 4"><label for="f-employed">Employment</label><select id="f-employed" data-field="employed"><option value="yes">Employed</option><option value="no">Not employed or retired</option></select></div>
+            <div class="control" style="grid-column:span 4"><label for="f-itype">Income type</label><select id="f-itype" data-field="incomeType"><option>Working</option><option>Commercial associate</option><option>State servant</option></select></div>
+            <div class="control" style="grid-column:span 4"><label for="f-edu">Education</label><select id="f-edu" data-field="education"><option>Secondary / secondary special</option><option>Higher education</option><option>Incomplete higher</option><option>Lower secondary</option><option>Academic degree</option></select></div>
+          </div>
+          <div class="grid" style="margin-top:1.5rem;row-gap:1.25rem;align-items:end">
+            <div style="grid-column:span 7">
+              <div class="score-readout"><span class="p" data-out="prob">&hellip;</span><span class="p-label">model score for default</span></div>
+              <div class="meter" aria-hidden="true">
+                <div class="track"></div><div class="fill" data-out="fill"></div>
+                <div class="tick accent" style="left:18%"></div><div class="tick-label" style="left:18%">0.18</div>
+                <div class="tick" style="left:50%"></div><div class="tick-label" style="left:50%">0.50</div>
+                <div class="tick" data-tick="user" style="left:30%;background:var(--muted)"></div>
+              </div>
+            </div>
+            <div class="control" style="grid-column:span 5"><label for="f-thr">Your threshold</label><output data-out="tlabel">0.30</output><input id="f-thr" type="range" min="0.05" max="0.6" step="0.01" value="0.3" data-field="thr"></div>
+          </div>
+          <div class="decisions" aria-live="polite" style="max-width:560px">
+            <div><span>At 0.50, the library default</span><span class="verdict" data-out="d50">&hellip;</span></div>
+            <div><span>At 0.18, chosen by F1</span><span class="verdict" data-out="d18">&hellip;</span></div>
+            <div><span>At your threshold</span><span class="verdict" data-out="dt">&hellip;</span></div>
+          </div>
+          <p class="foot" style="margin-top:1.25rem">The tuned model from the repository, 388 trees, evaluated in your browser and checked against Python to six decimal places. Inputs not shown take the defaults of the Hugging Face Space.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <div class="case-body">
+    <section aria-labelledby="nums">
+      <div class="col">
+        <h2 id="nums" data-reveal>What the numbers say</h2>
+        <p data-reveal style="--i:1">On 61,503 held-out applications, 4,965 of which defaulted. Logistic regression set the floor at an AUC of 0.60.</p>
+      </div>
+      <div class="wide">
+        <div class="numbers">
+          <div data-reveal><b>0.75</b><span>AUC, tuned XGBoost</span></div>
+          <div data-reveal style="--i:1"><b>4% &rarr; 40%</b><span>defaulters caught, 0.50 against 0.18</span></div>
+          <div data-reveal style="--i:2"><b>0.24</b><span>precision at 0.18</span></div>
+        </div>
+        <table class="table" style="margin-top:2.5rem" data-reveal>
+          <caption class="sr-only">Model comparison on the test set</caption>
+          <thead><tr><th scope="col">Metric</th><th scope="col" class="r">Logistic regression</th><th scope="col" class="r">XGBoost</th><th scope="col" class="r">XGBoost, tuned</th></tr></thead>
+          <tbody>
+            <tr><td>AUC</td><td class="r">0.60</td><td class="r">0.74</td><td class="r">0.75</td></tr>
+            <tr><td>Default recall</td><td class="r">0.50</td><td class="r">0.44</td><td class="r">0.40</td></tr>
+            <tr><td>Default precision</td><td class="r">0.11</td><td class="r">0.21</td><td class="r">0.24</td></tr>
+            <tr><td>Default F1</td><td class="r">0.17</td><td class="r">0.28</td><td class="r">0.30</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="col" aria-labelledby="line">
+      <h2 id="line" data-reveal>Why the line moved</h2>
+      <p data-reveal style="--i:1">At the default threshold of 0.50 the model looked accurate, 92%, and was nearly useless: it caught 4% of defaulters. For a lender a missed default costs far more than a second look, so I swept the threshold and took the one that maximised F1 for the default class. That was 0.18.</p>
+      <p data-reveal style="--i:2">The scores are not calibrated probabilities. The model trained on SMOTENC-balanced data, where defaults are far more common than the real 8%, so it scores everyone high. That is part of why the useful threshold sits so low, and why I call the number a score.</p>
+    </section>
+
+    <section aria-labelledby="lit">
+      <div class="col">
+        <h2 id="lit" data-reveal>What drives it</h2>
+        <p data-reveal style="--i:1">The external credit scores dominate, in the correlations and in SHAP. Two engineered features earned their place: the ratio of credit to income, and a flag for 55,374 applicants (18%) whose employment length held a placeholder of 365,243 days, meaning unemployed or retired.</p>
+      </div>
+      <div class="wide">
+        <div class="cms" data-reveal>
+          <figure><img src="../img/fig/loan-shap.webp" width="782" height="933" alt="SHAP summary plot of feature effects" loading="lazy"><figcaption class="small muted" style="margin-top:.5rem">SHAP summary, from the modelling notebook.</figcaption></figure>
+          <figure><img src="../img/fig/loan-correlations.webp" width="984" height="784" alt="Bars of the twenty features most correlated with default" loading="lazy"><figcaption class="small muted" style="margin-top:.5rem">The twenty features most correlated with default.</figcaption></figure>
+        </div>
+        <figure style="margin-top:2.5rem" data-reveal>
+          <img src="../img/fig/loan-threshold.webp" width="984" height="484" alt="Precision, recall and F1 against the threshold, with the chosen threshold marked" loading="lazy">
+          <figcaption class="small muted" style="margin-top:.5rem">The sweep that chose the line: precision rises and recall falls as the threshold climbs.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="col" aria-labelledby="leak">
+      <h2 id="leak" data-reveal>Keeping the test honest</h2>
+      <p data-reveal style="--i:1">I split before anything else, then ran SMOTENC inside an imbalanced-learn pipeline, so synthetic defaulters were created within each training fold and never leaked into validation. The minority class grew from 19,860 to 226,148 samples in training only. Hyperparameters came from a randomised search with stratified three-fold cross-validation.</p>
+    </section>
+  </div>
+
+  <section class="case-next" aria-labelledby="next">
+    <div class="col">
+      <h2 id="next" data-reveal>What I would do next</h2>
+      <ul class="plain">
+        <li data-reveal>Remove gender from the inputs and test the model for proxies of it. It was a feature here; a lender could not use it. (This demo holds it fixed.)</li>
+        <li data-reveal style="--i:1">Calibrate the scores on held-out data, so 0.30 means a 30% chance.</li>
+        <li data-reveal style="--i:2">Choose the threshold from the cost of each error rather than F1.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<div class="closing">
+  <section class="contact" aria-labelledby="contact-title">
+    <p class="statement">Accuracy said 92%. Recall said 4%. I trust the second number.</p>
+    <div class="reach" style="grid-column: 7 / -1">
+      <h2 id="contact-title">Other case studies</h2>
+      <ul class="reach-links">
+        <li><a class="link" href="rag.html">Multi-strategy RAG <span class="arrow" aria-hidden="true">&rarr;</span></a></li>
+        <li><a class="link" href="finsentinel.html">FinSentinel <span class="arrow" aria-hidden="true">&rarr;</span></a></li>
+      </ul>
+      <p class="where"><a class="link" href="mailto:aamini8118@gmail.com">aamini8118@gmail.com</a></p>
+    </div>
+  </section>
+  <footer class="footer">
+    <span>Amir Amini, ML engineer</span>
+    <nav aria-label="Footer"><a href="../index.html">Home</a><a href="https://github.com/Amirrezaww">GitHub</a><a href="https://www.linkedin.com/in/amirreza-amini8118/">LinkedIn</a></nav>
+    <span class="end">2026 &middot; <a href="../credits.html">Image credits</a></span>
+  </footer>
+</div>
+<script type="module" src="../js/site.js"></script>
+</body>
+</html>

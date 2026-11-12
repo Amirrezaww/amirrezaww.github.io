@@ -1,0 +1,77 @@
+[
+ {
+  "query": "Who won the FIFA World Cup in 2018?",
+  "truth": "France",
+  "response": "Based on the additional information provided, I will update my knowledge to reflect that the winner of the FIFA World Cup in 2018 was France.",
+  "retrieved_questions": [
+   "who is won the fifa world cup 2018",
+   "who won fifa football world cup in 2018",
+   "who is won the 2018 fifa world cup",
+   "who won today in the fifa world cup 2018",
+   "who won the fifa world cup 2018 russia"
+  ],
+  "contexts": [
+   "France",
+   "France",
+   "France",
+   "France",
+   "France"
+  ],
+  "retrieval_ms": 377,
+  "generation_ms": 1540,
+  "total_ms": 2345,
+  "faithfulness": 0,
+  "accuracy": 1,
+  "relevance": 1
+ },
+ {
+  "query": "What is the capital of France?",
+  "truth": "Paris",
+  "response": "Based on the additional information provided for 2024, I will add it to my overall knowledge to provide a more comprehensive answer.\n\nThe capital of France is Paris.",
+  "retrieved_questions": [
+   "capital of the correze dept in sw france",
+   "Henri Messerer was from the city that is the capital of which department of France?",
+   "what are the 5 largest cities in france",
+   "what city was the seat of the french monarchy",
+   "where is france located on a world map"
+  ],
+  "contexts": [
+   "Tulle",
+   "Bouches-du-Rh\u00f4ne",
+   "Lyon' 'Paris' 'Marseille' 'Toulouse' 'Nice",
+   "Paris",
+   "western Europe"
+  ],
+  "retrieval_ms": 316,
+  "generation_ms": 1896,
+  "total_ms": 2643,
+  "faithfulness": 0,
+  "accuracy": 1,
+  "relevance": 1
+ },
+ {
+  "query": "Who wrote Romeo and Juliet?",
+  "truth": "William Shakespeare",
+  "response": "Based on the provided news data and my overall knowledge, I can answer the query as follows:\n\nThe author of the original story of Romeo and Juliet is William Shakespeare. The music for Romeo and Juliet was composed by Pyotr Ilyich Tchaikovsky.",
+  "retrieved_questions": [
+   "who wrote the music for romeo and juliet",
+   "who wrote the music to romeo and juliet",
+   "who wrote the original story of romeo and juliet",
+   "who died first in the play romeo and juliet",
+   "who is the author of romeo and juliet"
+  ],
+  "contexts": [
+   "Pyotr Ilyich Tchaikovsky",
+   "Pyotr Ilyich Tchaikovsky",
+   "William Shakespeare",
+   "Romeo",
+   "William Shakespeare"
+  ],
+  "retrieval_ms": 294,
+  "generation_ms": 2945,
+  "total_ms": 3667,
+  "faithfulness": 1,
+  "accuracy": 1,
+  "relevance": 1
+ }
+]

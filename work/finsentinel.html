@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FinSentinel, Amir Amini</title>
+<meta name="description" content="FinSentinel: a TF-IDF baseline, a fine-tuned FinBERT at weighted F1 0.974, and a FastAPI container serving it on AWS EC2. Try the baseline live in the page.">
+<meta name="site-root" content="../">
+<link rel="canonical" href="https://amirrezaww.github.io/work/finsentinel.html">
+<meta property="og:title" content="FinSentinel, financial sentiment on AWS">
+<meta property="og:description" content="Fine-tuned FinBERT, weighted F1 0.974 against a 0.866 baseline, served from a Docker container on EC2.">
+<meta property="og:image" content="https://amirrezaww.github.io/img/og.jpg">
+<link rel="icon" href="../img/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../fonts/instrument-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../css/site.css">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body class="case">
+<a class="skip" href="#main">Skip to content</a>
+<header class="rail is-light" data-rail>
+  <a class="wordmark" href="../index.html">Amir Amini, ML engineer</a>
+  <p class="rail-sentence">Case study: NLP, from notebook to AWS.</p>
+  <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
+  <nav class="rail-nav" id="nav" aria-label="Main">
+    <a href="../index.html#work">Work</a>
+    <a href="../index.html#about">About</a>
+    <a href="../index.html#contact">Contact</a>
+    <a class="button" href="../cv/Amirreza_Amini_CV.pdf">CV <span class="sr-only">(PDF)</span></a>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="case-hero" aria-labelledby="title">
+    <div class="col">
+      <h1 id="title" data-reveal>FinSentinel</h1>
+      <p class="lead" data-reveal style="--i:1">Financial sentiment, from a baseline worth beating to a fine-tuned FinBERT served on AWS.</p>
+      <dl class="case-facts" data-reveal style="--i:2">
+        <div><dt>Model</dt><dd>FinBERT, fine-tuned</dd></div>
+        <div><dt>Serving</dt><dd>FastAPI, Docker, EC2</dd></div>
+        <div><dt>Links</dt><dd><a class="link" href="https://github.com/Amirrezaww/FinSentinel">GitHub</a>, <a class="link" href="http://18.132.157.150:8000/docs">API docs</a></dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <figure class="case-figure" data-reveal>
+    <div class="wide">
+      <img src="../img/fig/fin-compare.webp" width="1333" height="733" alt="Grouped bars: FinBERT above the TF-IDF baseline on weighted F1, macro F1 and every class">
+      <figcaption>Test set, 190 held-out sentences. Grey is the TF-IDF baseline, green the fine-tuned FinBERT.</figcaption>
+    </div>
+  </figure>
+
+  <div class="case-body">
+    <section class="col" aria-labelledby="hard">
+      <h2 id="hard" data-reveal>Why financial text is hard</h2>
+      <p data-reveal style="--i:1">&ldquo;Profit&rdquo; is good news until it is a profit warning. &ldquo;Operating profit was EUR 1.6 mn in 2005 compared to EUR 5.9 mn in 2004&rdquo; contains no negative word at all. A bag of words sees profit; an analyst sees a 73% fall.</p>
+      <p data-reveal style="--i:2">The data is Financial PhraseBank, the sentences on which every annotator agreed: 1,263 after removing duplicates, 62% of them neutral.</p>
+      <figure class="col-figure" data-reveal>
+        <img src="../img/fig/fin-classes.webp" width="1568" height="617" alt="Bar and pie charts of the class balance: mostly neutral, then positive, then negative" loading="lazy">
+        <figcaption>Class balance, from the EDA notebook.</figcaption>
+      </figure>
+    </section>
+
+    <section class="col" aria-labelledby="base">
+      <h2 id="base" data-reveal>A baseline first</h2>
+      <p data-reveal style="--i:1">TF-IDF over words and word pairs into a class-balanced logistic regression, with C tuned on the validation set. It scored a weighted F1 of 0.866 on the test set: respectable, and a fair bar for a transformer to clear.</p>
+    </section>
+    <figure class="wide" data-reveal>
+      <img src="../img/fig/fin-terms.webp" width="2385" height="921" alt="Three bar charts of the most distinctive TF-IDF terms for negative, neutral and positive sentences" loading="lazy">
+      <figcaption class="small muted" style="margin-top:.6rem">The terms the baseline leans on most, per class. Sensible words, and no sense of what they modify.</figcaption>
+    </figure>
+
+    <section aria-labelledby="try">
+      <div class="col">
+        <h2 id="try" data-reveal>Try to fool the baseline</h2>
+        <p data-reveal style="--i:1">This is the real baseline, exported from the saved scikit-learn pipeline and matching it to six decimal places. The examples are test sentences it gets wrong.</p>
+      </div>
+      <div class="wide panel tryit" data-ui data-reveal data-baseline>
+        <h3><label for="sentence">A sentence of financial news</label></h3>
+        <textarea id="sentence" spellcheck="false">Operating profit was EUR 1.6 mn in 2005 compared to EUR 5.9 mn in 2004 .</textarea>
+        <div class="chips" aria-label="Example sentences">
+          <button type="button" data-label="negative">Operating profit was EUR 1.6 mn in 2005 compared to EUR 5.9 mn in 2004 .</button>
+          <button type="button" data-label="positive">Kesko 's car import and retailing business , VV-Auto , saw sales grow by 17.1 pct .</button>
+          <button type="button" data-label="neutral">The increase range will vary up to 10 % .</button>
+          <button type="button" data-label="positive">However , net sales in 2010 are seen to have grown to EUR598 .3 m from EUR582 .3 m in 2009 .</button>
+          <button type="button" data-label="">Operating profit rose 12% year-on-year, beating analyst consensus.</button>
+        </div>
+        <div class="bars" aria-live="polite"></div>
+        <p class="drivers"></p>
+        <noscript><p>The live baseline needs JavaScript.</p></noscript>
+      </div>
+    </section>
+
+    <section aria-labelledby="ft">
+      <div class="col">
+        <h2 id="ft" data-reveal>Fine-tuning FinBERT</h2>
+        <p data-reveal style="--i:1">I started from ProsusAI/FinBERT and replaced the head for my label order. Rather than oversample, I subclassed the Hugging Face Trainer to inject class weights into the cross-entropy loss: 2.56 for negative, 0.54 for neutral, 1.32 for positive. Four epochs at a learning rate of 2e-5, trained on a CPU.</p>
+      </div>
+      <div class="wide">
+        <div class="numbers">
+          <div data-reveal><b>0.974</b><span>weighted F1, test set</span></div>
+          <div data-reveal style="--i:1"><b>+10.8</b><span>points over the baseline</span></div>
+          <div data-reveal style="--i:2"><b>5 of 190</b><span>test sentences wrong, against 25</span></div>
+        </div>
+        <div class="cms" data-reveal>
+          <div class="cm">
+            <table>
+              <caption>TF-IDF baseline</caption>
+              <thead><tr><th></th><th scope="col">neg</th><th scope="col">neu</th><th scope="col">pos</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">negative</th><td class="hit">20</td><td class="miss">2</td><td class="miss">3</td></tr>
+                <tr><th scope="row">neutral</th><td class="miss">1</td><td class="hit">111</td><td class="miss">5</td></tr>
+                <tr><th scope="row">positive</th><td class="miss">4</td><td class="miss">10</td><td class="hit">34</td></tr>
+              </tbody>
+            </table>
+            <p class="total">165 of 190 right. Rows are the expert label, columns the prediction.</p>
+          </div>
+          <div class="cm">
+            <table>
+              <caption>Fine-tuned FinBERT</caption>
+              <thead><tr><th></th><th scope="col">neg</th><th scope="col">neu</th><th scope="col">pos</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">negative</th><td class="hit">23</td><td class="zero">0</td><td class="miss">2</td></tr>
+                <tr><th scope="row">neutral</th><td class="zero">0</td><td class="hit">114</td><td class="miss">3</td></tr>
+                <tr><th scope="row">positive</th><td class="zero">0</td><td class="zero">0</td><td class="hit">48</td></tr>
+              </tbody>
+            </table>
+            <p class="total">185 of 190 right. Every remaining error leans positive.</p>
+          </div>
+        </div>
+        <figure style="margin-top:3rem" data-reveal>
+          <img src="../img/fig/fin-curves.webp" width="2383" height="580" alt="Training curves: loss falling and validation F1 rising over four epochs" loading="lazy">
+          <figcaption class="small muted" style="margin-top:.6rem">Training loss and validation scores across the four epochs.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="col" aria-labelledby="ship">
+      <h2 id="ship" data-reveal>Shipping it</h2>
+      <p data-reveal style="--i:1">The model sits behind a FastAPI service with Pydantic validation, a single and a batch endpoint (up to 32 texts) returning per-class confidence, and generated OpenAPI docs. The service is packed into a Docker image on python:3.10-slim, pushed to Amazon ECR and run on an EC2 instance. A pytest suite covers the API, the predictor and a training smoke test.</p>
+    </section>
+  </div>
+
+  <section class="case-next" aria-labelledby="next">
+    <div class="col">
+      <h2 id="next" data-reveal>What I would do next</h2>
+      <ul class="plain">
+        <li data-reveal>Run the tests in CI on every push, and rebuild the image from there.</li>
+        <li data-reveal style="--i:1">Put HTTPS in front of the API, so a page like this one can call FinBERT directly.</li>
+        <li data-reveal style="--i:2">Log live predictions and watch their class mix drift against the training data.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<div class="closing">
+  <section class="contact" aria-labelledby="contact-title">
+    <p class="statement">The baseline is in your browser. FinBERT lives on AWS, two clicks away.</p>
+    <div class="reach" style="grid-column: 7 / -1">
+      <h2 id="contact-title">Other case studies</h2>
+      <ul class="reach-links">
+        <li><a class="link" href="rag.html">Multi-strategy RAG <span class="arrow" aria-hidden="true">&rarr;</span></a></li>
+        <li><a class="link" href="loan-default.html">Loan default risk <span class="arrow" aria-hidden="true">&rarr;</span></a></li>
+      </ul>
+      <p class="where"><a class="link" href="mailto:aamini8118@gmail.com">aamini8118@gmail.com</a></p>
+    </div>
+  </section>
+  <footer class="footer">
+    <span>Amir Amini, ML engineer</span>
+    <nav aria-label="Footer"><a href="../index.html">Home</a><a href="https://github.com/Amirrezaww">GitHub</a><a href="https://www.linkedin.com/in/amirreza-amini8118/">LinkedIn</a></nav>
+    <span class="end">2026 &middot; <a href="../credits.html">Image credits</a></span>
+  </footer>
+</div>
+<script type="module" src="../js/site.js"></script>
+<script type="module" src="../js/baseline-demo.js"></script>
+</body>
+</html>
